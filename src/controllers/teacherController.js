@@ -1,6 +1,7 @@
 import { Teacher, Student, Registration } from "../models/index.js";
 import { sequelize } from "../config/index.js";
 import { Op } from "sequelize";
+import { isValidEmail, extractMentions } from "../utils/helpers.js";
 
 /**
  * Register students to a teacher
@@ -21,8 +22,7 @@ const registerStudents = async (req, res) => {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(teacher)) {
+    if (!isValidEmail(teacher)) {
       await transaction.rollback();
       return res.status(400).json({ message: "Invalid teacher email format." });
     }
@@ -70,7 +70,7 @@ const registerStudents = async (req, res) => {
   } catch (error) {
     await transaction.rollback();
     console.error("Error in registerStudents:", error);
-    res.status(500).json({ message: "An error occurred while registering students." });
+    res.status(500).json({ message: `An error occurred while registering students: ${error.message}` });
   }
 };
 
@@ -95,9 +95,8 @@ const getCommonStudents = async (req, res) => {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     for (const email of teacherEmails) {
-      if (!emailRegex.test(email)) {
+      if (!isValidEmail(email)) {
         return res.status(400).json({ message: `Invalid email format: ${email}` });
       }
     }
@@ -151,8 +150,7 @@ const suspendStudent = async (req, res) => {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(student)) {
+    if (!isValidEmail(student)) {
       return res.status(400).json({ message: "Invalid student email format." });
     }
 
@@ -189,8 +187,7 @@ const retrieveForNotifications = async (req, res) => {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(teacher)) {
+    if (!isValidEmail(teacher)) {
       return res.status(400).json({ message: "Invalid teacher email format." });
     }
 
@@ -198,13 +195,7 @@ const retrieveForNotifications = async (req, res) => {
     const teacherRecord = await Teacher.findOne({ where: { email: teacher } });
 
     // Extract mentioned students from notification
-    // Pattern: @email@domain.com
-    const mentionRegex = /@([^\s@]+@[^\s@]+\.[^\s@]+)/g;
-    const mentions = [];
-    let match;
-    while ((match = mentionRegex.exec(notification)) !== null) {
-      mentions.push(match[1]);
-    }
+    const mentions = extractMentions(notification);
 
     const recipientEmails = new Set();
 
@@ -241,22 +232,6 @@ const retrieveForNotifications = async (req, res) => {
       mentionedStudents.forEach((student) => {
         recipientEmails.add(student.email);
       });
-
-      // Also include mentioned emails even if they're not in the database
-      // but only if they're not suspended (they won't be in DB if not registered)
-      for (const mentionedEmail of mentions) {
-        const existsInDb = await Student.findOne({
-          where: { email: mentionedEmail },
-        });
-
-        if (!existsInDb) {
-          // Email not in database, so not suspended - include it
-          recipientEmails.add(mentionedEmail);
-        } else if (!existsInDb.isSuspended) {
-          // Email in database and not suspended
-          recipientEmails.add(mentionedEmail);
-        }
-      }
     }
 
     const recipients = Array.from(recipientEmails).sort();

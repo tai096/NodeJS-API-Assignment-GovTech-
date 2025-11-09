@@ -51,4 +51,4 @@ const testConnection = async () => {
   }
 };
 
-export { sequelize, testConnection };
+export { sequelize, testConnection, createDatabaseIfNotExists };

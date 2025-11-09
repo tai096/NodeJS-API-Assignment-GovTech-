@@ -1,13 +1,13 @@
 import request from "supertest";
 import app from "../src/app.js";
-import { sequelize } from "../src/config/index.js";
+import { sequelize, createDatabaseIfNotExists } from "../src/config/index.js";
 import { Teacher, Student, Registration } from "../src/models/index.js";
-
-// Set test environment
-process.env.NODE_ENV = "test";
 
 describe("Teacher-Student API Tests", () => {
   beforeAll(async () => {
+    // Create database if it doesn't exist
+    await createDatabaseIfNotExists();
+
     // Sync database for tests
     await sequelize.sync({ force: true });
   });
@@ -263,7 +263,7 @@ describe("Teacher-Student API Tests", () => {
       expect(response.body.recipients).not.toContain("suspendedstudent@gmail.com");
     });
 
-    test("should include mentioned students not in database", async () => {
+    test("should not include mentioned students not in database", async () => {
       const response = await request(app)
         .post("/api/retrievefornotifications")
         .send({
@@ -272,7 +272,9 @@ describe("Teacher-Student API Tests", () => {
         })
         .expect(200);
 
-      expect(response.body.recipients).toEqual(expect.arrayContaining(["studentbob@gmail.com", "newstudent@gmail.com"]));
+      // Only registered students should be returned (newstudent is not in DB)
+      expect(response.body.recipients).toEqual(["studentbob@gmail.com"]);
+      expect(response.body.recipients).not.toContain("newstudent@gmail.com");
     });
 
     test("should return 400 for missing teacher", async () => {
