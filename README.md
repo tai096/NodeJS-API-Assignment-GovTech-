@@ -24,7 +24,7 @@ A RESTful API for teachers to manage students. Built with Node.js, Express, MySQ
    ```bash
    git clone <your-repository-url>
    cd NodeJS-API-Assignment-GovTech-
-   npm install
+   npm install / yarn
    ```
 
 2. **Configure environment:**
@@ -45,6 +45,9 @@ A RESTful API for teachers to manage students. Built with Node.js, Express, MySQ
 
    ```bash
    npm run dev
+   ```
+   ```bash
+   yarn dev
    ```
 
    The app will automatically:
@@ -132,16 +135,17 @@ Get students who can receive notifications (registered + @mentioned, excluding s
 Check API status.
 
 ## Testing
+- Create a .env.test file before testing
 
 ```bash
 # Run all tests
-npm test
+npm test / yarn test
 
 # Run tests in watch mode
 npm run test:watch
 ```
 
-Tests automatically use a separate `teacher_student_db_test` database to protect your development data.
+- Tests automatically use a separate `teacher_student_db_test` database to protect your development data.
 
 ## Project Structure
 
