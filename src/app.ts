@@ -1,13 +1,11 @@
-import dotenv from "dotenv";
-import express from "express";
+import "./config/env.js"; // Load environment variables first
+import express, { Application } from "express";
 import cors from "cors";
 import routes from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import requestLogger from "./middleware/requestLogger.js";
 
-dotenv.config();
-
-const app = express();
+const app: Application = express();
 
 // CORS middleware
 app.use(cors());
