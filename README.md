@@ -196,34 +196,34 @@ Tests automatically use a separate `teacher_student_db_test` database to protect
 ```
 src/                      # TypeScript source files
 ├── config/               # Configuration (database, env)
-│   ├── database.ts       # Database config với types
+│   ├── database.ts       # Database config
 │   ├── env.ts            # Environment config
 │   └── index.ts          # Sequelize instance
-├── controllers/          # HTTP request handlers (TypeScript)
+├── controllers/          # HTTP request handlers
 │   └── teacherController.ts
-├── services/             # Business logic layer (TypeScript)
+├── services/             # Business logic layer
 │   └── teacherService.ts
-├── models/               # Sequelize models với typed interfaces
+├── models/               # Sequelize models
 │   ├── Teacher.ts
 │   ├── Student.ts
 │   ├── Registration.ts
 │   └── index.ts
-├── routes/               # API routes (TypeScript)
+├── routes/               # API routes
 │   ├── api.ts
 │   └── index.ts
-├── middleware/           # Express middleware (TypeScript)
+├── middleware/           # Express middleware
 │   ├── validate.ts
 │   ├── errorHandler.ts
 │   └── requestLogger.ts
-├── validators/           # Joi validation schemas (TypeScript)
+├── validators/           # Joi validation schemas
 │   └── teacherValidators.ts
-├── utils/                # Helper functions (TypeScript)
+├── utils/                # Helper functions
 │   └── helpers.ts
 ├── app.ts                # Express application
 └── server.ts             # Server entry point
 
 dist/                     # Compiled JavaScript output
-tests/                    # Test files (to be migrated to TypeScript)
+tests/                    # Test files
 ├── unit/                 # Unit tests (service layer)
 ├── integration/          # Integration tests (API endpoints)
 └── helpers/              # Test utilities
@@ -233,78 +233,23 @@ migrations/               # Database migrations
 
 ## 🏗️ Architecture
 
-**Layered architecture with TypeScript:**
-
 1. **Routes** → Define endpoints + validation middleware
-2. **Validators** → Joi schemas for request validation (typed)
-3. **Controllers** → Handle HTTP requests/responses (typed with Express types)
-4. **Services** → Business logic + database operations (fully typed)
-5. **Models** → Sequelize ORM models (with TypeScript interfaces)
-
-**Benefits of TypeScript in this architecture:**
-
-- Type-safe data flow through all layers
-- IntelliSense support in IDE
-- Compile-time error detection
-- Better refactoring support
+2. **Validators** → Joi schemas for request validation
+3. **Controllers** → Handle HTTP requests/responses
+4. **Services** → Business logic + database operations
+5. **Models** → Sequelize ORM models
 
 ## 🗄️ Database Migrations
 
-**Important:** Database schema is managed via migrations, NOT auto-sync.
-
 ```bash
-# Development (default)
 yarn db:setup         # Create database + run migrations
 yarn db:create        # Create database only
-yarn db:migrate       # Run migrations (also creates DB if needed)
-
-# Test environment
-yarn db:setup:test    # Create test database + run migrations
-yarn db:create:test   # Create test database only
-yarn db:migrate:test  # Run migrations for test DB
-
-# Production
-yarn db:setup:prod    # Create production database + run migrations
-yarn db:create:prod   # Create production database only
-yarn db:migrate:prod  # Run migrations for production DB
+yarn db:migrate       # Run migrations only
 
 # Rollback migrations
 yarn db:migrate:undo       # Undo last migration
 yarn db:migrate:undo:all   # Undo all migrations
 ```
-
-**Or use NODE_ENV directly:**
-
-```bash
-# Any environment
-NODE_ENV=test node scripts/create-database.cjs
-NODE_ENV=production npx sequelize-cli db:migrate
-```
-
-**Workflow:**
-
-- **First time setup:**
-  1. Run `yarn db:setup` (creates database + runs migrations)
-  2. Start server (`yarn dev`)
-- **Different environment:** Use `yarn db:setup:test` or `yarn db:setup:prod`
-- **Schema changes:** Create new migration file, then run `yarn db:migrate`
-- **Normal startup:** Just `yarn dev` (database & tables already exist)
-- **Server behavior:** Only connects to DB, no auto-sync
-
-## Database Schema
-
-**teachers**
-
-- `id`, `email` (unique), `created_at`, `updated_at`
-
-**students**
-
-- `id`, `email` (unique), `is_suspended`, `created_at`, `updated_at`
-
-**registrations**
-
-- `id`, `teacher_id`, `student_id`, `created_at`, `updated_at`
-- Unique constraint on (`teacher_id`, `student_id`)
 
 ## Environment Variables
 
@@ -327,13 +272,3 @@ NODE_ENV=production npx sequelize-cli db:migrate
 - **Sequelize CLI** - Database migrations
 - **ES6 Modules** - Modern JavaScript
 - **dotenv** - Environment configuration
-
-## Key Improvements
-
-✅ **Robust validation** - Joi schemas catch type errors (e.g., number instead of string)  
-✅ **Layered architecture** - Separation of concerns (routes → controllers → services)  
-✅ **Database migrations** - Version-controlled schema changes  
-✅ **Case-insensitive emails** - Consistent email handling with `.toLowerCase()`  
-✅ **Modular tests** - Separate unit tests (services) and integration tests (API)  
-✅ **Centralized config** - Single source for environment variables  
-✅ **Production-ready** - Multiple environment support (dev, test, production)
