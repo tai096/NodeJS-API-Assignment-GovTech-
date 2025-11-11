@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/index.js";
 
-// Định nghĩa interface cho attributes
 export interface RegistrationAttributes {
     id: number;
     teacherId: number;
@@ -10,10 +9,8 @@ export interface RegistrationAttributes {
     updatedAt?: Date;
 }
 
-// Định nghĩa interface cho creation
 export interface RegistrationCreationAttributes extends Optional<RegistrationAttributes, "id"> { }
 
-// Extend Model class với types
 export class Registration extends Model<RegistrationAttributes, RegistrationCreationAttributes>
     implements RegistrationAttributes {
     public id!: number;

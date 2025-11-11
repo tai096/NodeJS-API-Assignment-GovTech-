@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/index.js";
 
-// Định nghĩa interface cho attributes
 export interface TeacherAttributes {
     id: number;
     email: string;
@@ -9,10 +8,8 @@ export interface TeacherAttributes {
     updatedAt?: Date;
 }
 
-// Định nghĩa interface cho creation (id là auto-increment nên optional)
 export interface TeacherCreationAttributes extends Optional<TeacherAttributes, "id"> { }
 
-// Extend Model class với types
 export class Teacher extends Model<TeacherAttributes, TeacherCreationAttributes>
     implements TeacherAttributes {
     public id!: number;
