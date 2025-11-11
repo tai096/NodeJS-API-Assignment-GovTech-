@@ -32,15 +32,12 @@ export const getCommonStudents = async (
     req: Request,
     res: Response,
     next: NextFunction
-): Promise<void | Response> => {
+): Promise<void> => {
     try {
         const { teacher } = req.query;
         const students = await teacherService.getCommonStudents(teacher as string | string[]);
         res.status(200).json({ students });
     } catch (error) {
-        if (error instanceof Error && error.message.includes("not found")) {
-            return res.status(404).json({ message: error.message });
-        }
         next(error);
     }
 };
@@ -53,15 +50,12 @@ export const suspendStudent = async (
     req: Request,
     res: Response,
     next: NextFunction
-): Promise<void | Response> => {
+): Promise<void> => {
     try {
         const { student } = req.body;
         await teacherService.suspendStudent(student);
         res.status(204).send();
     } catch (error) {
-        if (error instanceof Error && error.message === "Student not found") {
-            return res.status(404).json({ message: error.message });
-        }
         next(error);
     }
 };

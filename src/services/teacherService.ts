@@ -2,6 +2,7 @@ import { Teacher, Student, Registration } from "../models/index.js";
 import { sequelize } from "../config/index.js";
 import { Op, Transaction } from "sequelize";
 import { extractMentions } from "../utils/helpers.js";
+import createError from "http-errors";
 
 /**
  * Teacher Service Layer
@@ -68,7 +69,7 @@ class TeacherService {
         if (teachers.length !== emails.length) {
             const foundEmails = teachers.map((t) => t.email);
             const notFound = emails.filter((e) => !foundEmails.includes(e));
-            throw new Error(`Teachers not found: ${notFound.join(", ")}`);
+            throw createError(404, `Teachers not found: ${notFound.join(", ")}`);
         }
 
         const teacherIds = teachers.map((t) => t.id);
@@ -101,7 +102,7 @@ class TeacherService {
         });
 
         if (!studentRecord) {
-            throw new Error("Student not found");
+            throw createError(404, "Student not found");
         }
 
         studentRecord.isSuspended = true;

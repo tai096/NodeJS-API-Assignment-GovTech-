@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
+import { HttpError } from "http-errors";
 
 /**
- * Custom error interface
+ * Custom error interface for Sequelize errors
  */
 interface CustomError extends Error {
     statusCode?: number;
@@ -13,18 +14,25 @@ interface CustomError extends Error {
  * Catches all errors and returns appropriate response
  */
 export const errorHandler = (
-    err: CustomError,
+    err: CustomError | HttpError,
     _req: Request,
     res: Response,
     _next: NextFunction
 ): Response => {
     console.error("Error:", err);
 
+    // Handle http-errors (from service layer)
+    if (err instanceof HttpError) {
+        return res.status(err.statusCode).json({
+            message: err.message,
+        });
+    }
+
     // Handle Sequelize validation errors
     if (err.name === "SequelizeValidationError") {
         return res.status(400).json({
             message: "Validation error",
-            errors: err.errors?.map((e) => e.message) || [],
+            errors: (err as CustomError).errors?.map((e: { message: string }) => e.message) || [],
         });
     }
 
