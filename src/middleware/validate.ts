@@ -5,8 +5,9 @@ import Joi from "joi";
  * Validation middleware factory
  * Validates request body or query against Joi schema
  */
-const validate = (schema: Joi.ObjectSchema, property: "body" | "query" = "body") => {
+const validate = (schema: Joi.ObjectSchema, property: "body" | "query" | "params" = "body") => {
     return (req: Request, res: Response, next: NextFunction): void | Response => {
+
         const { error, value } = schema.validate(req[property], {
             abortEarly: false,
             stripUnknown: true,
@@ -23,9 +24,6 @@ const validate = (schema: Joi.ObjectSchema, property: "body" | "query" = "body")
         // For body, make sure the data is cleaned and set to request body
         if (property === "body") {
             req.body = value;
-        } else if (property === "query") {
-            // For query params, just validate without replacing
-            // The values are already parsed by Express
         }
 
         next();
